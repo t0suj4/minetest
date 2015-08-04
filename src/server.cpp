@@ -635,7 +635,7 @@ void Server::AsyncRunStep(bool initial_step)
 		*/
 		if(!modified_blocks.empty())
 		{
-			SetBlocksNotSent(modified_blocks);
+			setBlocksNotSentToAll(modified_blocks);
 		}
 	}
 	m_clients.step(dtime);
@@ -963,12 +963,7 @@ void Server::AsyncRunStep(bool initial_step)
 				}
 
 				// Set blocks not sent
-				for(std::vector<u16>::iterator
-						i = far_players.begin();
-						i != far_players.end(); ++i) {
-					if(RemoteClient *client = getClient(*i))
-						client->SetBlocksNotSent(modified_blocks2);
-				}
+				setBlocksNotSentToClients(far_players, modified_blocks2);
 			}
 
 			delete event;
@@ -1352,15 +1347,19 @@ void Server::setInventoryModified(const InventoryLocation &loc, bool playerSend)
 	}
 }
 
-void Server::SetBlocksNotSent(std::map<v3s16, MapBlock *>& block)
+void Server::setBlocksNotSentToAll(std::map<v3s16, MapBlock *>& blocks)
 {
 	std::vector<u16> clients = m_clients.getClientIDs();
+	setBlocksNotSentToClients(clients, blocks);
+}
+
+void Server::setBlocksNotSentToClients(std::vector<u16> &clients, std::map<v3s16, MapBlock *>& blocks)
+{
 	m_clients.Lock();
-	// Set the modified blocks unsent for all the clients
 	for (std::vector<u16>::iterator i = clients.begin();
 		 i != clients.end(); ++i) {
 			if (RemoteClient *client = m_clients.lockedGetClientNoEx(*i))
-				client->SetBlocksNotSent(block);
+				client->SetBlocksNotSent(blocks);
 	}
 	m_clients.Unlock();
 }
@@ -2738,9 +2737,15 @@ RemoteClient* Server::getClient(u16 peer_id, ClientState state_min)
 
 	return client;
 }
+
+// TODO: Refactor Server and ClientInterface so those methods aren't even
+// needed as passing around pointers with unlocked list is very hazardous
 RemoteClient* Server::getClientNoEx(u16 peer_id, ClientState state_min)
 {
-	return m_clients.getClientNoEx(peer_id, state_min);
+	m_clients.Lock();
+	RemoteClient *client = m_clients.lockedGetClientNoEx(peer_id, state_min);
+	m_clients.Unlock();
+	return client;
 }
 
 std::string Server::getPlayerName(u16 peer_id)

@@ -392,7 +392,8 @@ private:
 	void SendNodeDef(u16 peer_id,INodeDefManager *nodedef, u16 protocol_version);
 
 	/* mark blocks not sent for all clients */
-	void SetBlocksNotSent(std::map<v3s16, MapBlock *>& block);
+	void setBlocksNotSentToAll(std::map<v3s16, MapBlock *> &block);
+	void setBlocksNotSentToClients(std::vector<u16> &clients, std::map<v3s16, MapBlock *> &block);
 
 
 	void SendChatMessage(u16 peer_id, const std::wstring &message);

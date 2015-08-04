@@ -455,12 +455,6 @@ public:
 	/* create client */
 	void CreateClient(u16 peer_id);
 
-	/* get a client by peer_id */
-	RemoteClient* getClientNoEx(u16 peer_id,  ClientState state_min=CS_Active);
-
-	/* get client by peer_id (make sure you have list lock before!*/
-	RemoteClient* lockedGetClientNoEx(u16 peer_id,  ClientState state_min=CS_Active);
-
 	/* get state of client by id*/
 	ClientState getClientState(u16 peer_id);
 
@@ -486,6 +480,9 @@ public:
 	static std::string state2Name(ClientState state);
 
 protected:
+	/* get client by peer_id (make sure you have list lock before!*/
+	RemoteClient* lockedGetClientNoEx(u16 peer_id,  ClientState state_min=CS_Active);
+
 	//TODO find way to avoid this functions
 	void Lock()
 		{ m_clients_mutex.Lock(); }

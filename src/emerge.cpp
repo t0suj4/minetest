@@ -513,7 +513,7 @@ void *EmergeThread::Thread()
 			modified_blocks[p] = block;
 
 		if (modified_blocks.size() > 0) {
-			m_server->SetBlocksNotSent(modified_blocks);
+			m_server->setBlocksNotSentToAll(modified_blocks);
 		}
 	}
 	catch (VersionMismatchException &e) {

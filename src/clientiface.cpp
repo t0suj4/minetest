@@ -692,22 +692,6 @@ void ClientInterface::sendToAll(u16 channelnum,
 	}
 }
 
-RemoteClient* ClientInterface::getClientNoEx(u16 peer_id, ClientState state_min)
-{
-	JMutexAutoLock clientslock(m_clients_mutex);
-	std::map<u16, RemoteClient*>::iterator n;
-	n = m_clients.find(peer_id);
-	// The client may not exist; clients are immediately removed if their
-	// access is denied, and this event occurs later then.
-	if(n == m_clients.end())
-		return NULL;
-
-	if (n->second->getState() >= state_min)
-		return n->second;
-	else
-		return NULL;
-}
-
 RemoteClient* ClientInterface::lockedGetClientNoEx(u16 peer_id, ClientState state_min)
 {
 	std::map<u16, RemoteClient*>::iterator n;
